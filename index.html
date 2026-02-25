@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Visual Assets Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #ff6b2b;
+    --accent2: #ff9a5c;
+    --text: #e8e8f0;
+    --muted: #6b6b88;
+    --success: #3de68e;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  header {
+    position: relative;
+    padding: 48px 24px 36px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #0f0f1a 0%, var(--bg) 100%);
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    top: -60px; left: -40px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(255,107,43,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0.9;
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 800;
+    line-height: 1.1;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: var(--mono);
+    line-height: 1.7;
+  }
+
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step {
+    margin-bottom: 40px;
+  }
+
+  .step-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .step-num {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    flex-shrink: 0;
+  }
+
+  .step-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Drop zone */
+  #dropzone {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #dropzone:hover, #dropzone.drag-over {
+    border-color: var(--accent);
+    background: rgba(255,107,43,0.04);
+  }
+
+  #dropzone.has-image {
+    border-style: solid;
+    border-color: var(--accent);
+    padding: 20px;
+  }
+
+  .dropzone-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .dropzone-text {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: var(--mono);
+    line-height: 1.6;
+  }
+
+  .dropzone-text strong { color: var(--accent); cursor: pointer; }
+
+  #fileInput { display: none; }
+
+  #imagePreview {
+    display: none;
+    gap: 20px;
+    align-items: center;
+  }
+
+  #imagePreview img {
+    width: 80px; height: 80px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: repeating-conic-gradient(#1a1a24 0% 25%, #111118 0% 50%) 0 0/12px 12px;
+    flex-shrink: 0;
+  }
+
+  .preview-info {
+    text-align: left;
+  }
+
+  .preview-name {
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+
+  .preview-dims {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .btn-change {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid var(--accent);
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-change:hover { background: rgba(255,107,43,0.1); }
+
+  /* Platform grid */
+  .platforms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 14px;
+  }
+
+  .platform-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+
+  .platform-card:hover {
+    border-color: var(--muted);
+    transform: translateY(-1px);
+  }
+
+  .platform-card.selected {
+    border-color: var(--accent);
+    background: rgba(255,107,43,0.04);
+  }
+
+  .platform-header {
+    padding: 16px 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .platform-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .platform-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    flex: 1;
+  }
+
+  .platform-check {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-size: 11px;
+  }
+
+  .platform-card.selected .platform-check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .platform-count {
+    padding: 0 16px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Asset panel */
+  .asset-panel {
+    display: none;
+    margin-top: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .asset-panel.visible { display: block; }
+
+  .asset-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .asset-panel-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .asset-panel-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-sm {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-sm:hover { color: var(--text); border-color: var(--muted); }
+
+  .asset-section {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .asset-section:last-child { border-bottom: none; }
+
+  .asset-section-title {
+    padding: 10px 18px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: rgba(255,107,43,0.04);
+  }
+
+  .asset-list {
+    padding: 10px 18px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 4px;
+  }
+
+  .asset-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .asset-item:hover { background: rgba(255,255,255,0.03); }
+
+  .asset-cb {
+    width: 14px; height: 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    font-size: 9px;
+  }
+
+  .asset-item.checked .asset-cb {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .asset-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .asset-size {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* Options */
+  .options-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .toggle-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .toggle-box {
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    transition: all 0.15s;
+  }
+
+  .toggle-option.on .toggle-box {
+    background: var(--success);
+    border-color: var(--success);
+    color: #000;
+  }
+
+  .toggle-label {
+    font-size: 13px;
+    font-family: var(--mono);
+    color: var(--muted);
+  }
+
+  .toggle-option.on .toggle-label { color: var(--text); }
+
+  /* Generate button */
+  #generateBtn {
+    width: 100%;
+    padding: 18px;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  #generateBtn:hover:not(:disabled) {
+    background: var(--accent2);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(255,107,43,0.3);
+  }
+
+  #generateBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  #generateBtn .btn-spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  #generateBtn.loading .btn-spinner { display: block; }
+
+  @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+
+  /* Log */
+  #logPanel {
+    display: none;
+    margin-top: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  #logPanel.visible { display: block; }
+
+  .log-header {
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  #logOutput {
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--muted);
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  #logOutput .log-ok { color: var(--success); }
+  #logOutput .log-skip { color: var(--muted); }
+  #logOutput .log-err { color: #ff5555; }
+  #logOutput .log-info { color: var(--accent2); }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 32px 0;
+  }
+
+  /* Selection summary */
+  .summary-bar {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .summary-bar .count {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <p class="tag">// Visual Assets Generator v2.0</p>
+    <h1>App Icon &amp;<br><span>Asset Exporter</span></h1>
+    <p class="subtitle">
+      Upload one source image → generate all platform assets → download ZIP.<br>
+      Supports Windows Store · Android · iOS · Chrome Extension.
+    </p>
+  </div>
+</header>
+
+<main>
+
+  <!-- STEP 1: Image -->
+  <div class="step">
+    <div class="step-label">
+      <div class="step-num">01</div>
+      <div class="step-title">Source Image</div>
+    </div>
+
+    <div id="dropzone">
+      <span class="dropzone-icon">🖼️</span>
+      <p class="dropzone-text">
+        Drag & drop your icon here<br>
+        or <strong onclick="document.getElementById('fileInput').click()">browse to upload</strong>
+      </p>
+      <p class="dropzone-text" style="margin-top:8px;font-size:11px;">PNG, JPG, JPEG • Recommended: 1024×1024 or larger</p>
+      <input type="file" id="fileInput" accept=".png,.jpg,.jpeg" />
+
+      <div id="imagePreview">
+        <img id="previewImg" src="" alt="preview" />
+        <div class="preview-info">
+          <div class="preview-name" id="previewName">—</div>
+          <div class="preview-dims" id="previewDims">—</div>
+          <button class="btn-change" onclick="document.getElementById('fileInput').click()">Change image</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 2: Platforms -->
+  <div class="step">
+    <div class="step-label">
+      <div class="step-num">02</div>
+      <div class="step-title">Target Platforms</div>
+    </div>
+
+    <div class="platforms-grid" id="platformsGrid"></div>
+
+    <div class="asset-panel" id="assetPanel"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP 3: Options & Generate -->
+  <div class="step">
+    <div class="step-label">
+      <div class="step-num">03</div>
+      <div class="step-title">Options &amp; Export</div>
+    </div>
+
+    <div class="options-row" style="margin-bottom:24px;">
+      <div class="toggle-option on" id="toggleContain" onclick="toggleOption('toggleContain','contain')">
+        <div class="toggle-box">✓</div>
+        <div class="toggle-label">Letterbox (contain)</div>
+      </div>
+      <div class="toggle-option" id="toggleCover" onclick="toggleOption('toggleCover','cover')">
+        <div class="toggle-box"></div>
+        <div class="toggle-label">Crop (cover)</div>
+      </div>
+    </div>
+
+    <div class="summary-bar" id="summaryBar">
+      Select platforms and assets above to see a summary.
+    </div>
+
+    <button id="generateBtn" onclick="generate()" disabled>
+      Generate &amp; Download ZIP
+      <div class="btn-spinner"></div>
+    </button>
+
+    <div id="logPanel">
+      <div class="log-header">// Output Log</div>
+      <div id="logOutput"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ─────────────────────────────────────────────
+// PLATFORM & ASSET DEFINITIONS
+// ─────────────────────────────────────────────
+
+const PLATFORMS = [
+  {
+    id: 'windows',
+    name: 'Microsoft Store',
+    icon: '🪟',
+    sections: [
+      {
+        title: 'Badge Logo',
+        assets: [
+          { file: 'Assets/BadgeLogo.png',         w: 24,   h: 24,   badge: true },
+          { file: 'Assets/BadgeLogo.scale-200.png', w: 48,  h: 48,   badge: true },
+          { file: 'Assets/BadgeLogo.scale-400.png', w: 96,  h: 96,   badge: true },
+        ]
+      },
+      {
+        title: 'Large Tile',
+        assets: [
+          { file: 'Assets/LargeTile.png',           w: 310,  h: 310 },
+          { file: 'Assets/LargeTile.scale-200.png', w: 620,  h: 620 },
+          { file: 'Assets/LargeTile.scale-400.png', w: 1240, h: 1240 },
+        ]
+      },
+      {
+        title: 'Small Tile',
+        assets: [
+          { file: 'Assets/SmallTile.png',           w: 71,  h: 71 },
+          { file: 'Assets/SmallTile.scale-200.png', w: 142, h: 142 },
+          { file: 'Assets/SmallTile.scale-400.png', w: 284, h: 284 },
+        ]
+      },
+      {
+        title: 'Splash Screen',
+        assets: [
+          { file: 'Assets/SplashScreen.png',           w: 620,  h: 300 },
+          { file: 'Assets/SplashScreen.scale-200.png', w: 1240, h: 600 },
+          { file: 'Assets/SplashScreen.scale-400.png', w: 2480, h: 1200 },
+        ]
+      },
+      {
+        title: 'Square 150×150 Logo',
+        assets: [
+          { file: 'Assets/Square150x150Logo.png',           w: 150, h: 150 },
+          { file: 'Assets/Square150x150Logo.scale-200.png', w: 300, h: 300 },
+          { file: 'Assets/Square150x150Logo.scale-400.png', w: 600, h: 600 },
+        ]
+      },
+      {
+        title: 'Square 44×44 Logo',
+        assets: [
+          { file: 'Assets/Square44x44Logo.png',           w: 44, h: 44 },
+          { file: 'Assets/Square44x44Logo.scale-200.png', w: 88, h: 88 },
+          { file: 'Assets/Square44x44Logo.scale-400.png', w: 176, h: 176 },
+          { file: 'Assets/Square44x44Logo.targetsize-16.png',  w: 16, h: 16 },
+          { file: 'Assets/Square44x44Logo.targetsize-48.png',  w: 48, h: 48 },
+          { file: 'Assets/Square44x44Logo.targetsize-256.png', w: 256, h: 256 },
+          { file: 'Assets/Square44x44Logo.altform-lightunplated_targetsize-16.png',  w: 16,  h: 16 },
+          { file: 'Assets/Square44x44Logo.altform-lightunplated_targetsize-48.png',  w: 48,  h: 48 },
+          { file: 'Assets/Square44x44Logo.altform-lightunplated_targetsize-256.png', w: 256, h: 256 },
+          { file: 'Assets/Square44x44Logo.altform-unplated_targetsize-16.png',  w: 16,  h: 16 },
+          { file: 'Assets/Square44x44Logo.altform-unplated_targetsize-48.png',  w: 48,  h: 48 },
+          { file: 'Assets/Square44x44Logo.altform-unplated_targetsize-256.png', w: 256, h: 256 },
+        ]
+      },
+      {
+        title: 'Store Logo',
+        assets: [
+          { file: 'Assets/StoreLogo.png',           w: 50,  h: 50 },
+          { file: 'Assets/StoreLogo.scale-200.png', w: 100, h: 100 },
+          { file: 'Assets/StoreLogo.scale-400.png', w: 200, h: 200 },
+        ]
+      },
+      {
+        title: 'Wide 310×150 Logo',
+        assets: [
+          { file: 'Assets/Wide310x150Logo.png',           w: 310,  h: 150 },
+          { file: 'Assets/Wide310x150Logo.scale-200.png', w: 620,  h: 300 },
+          { file: 'Assets/Wide310x150Logo.scale-400.png', w: 1240, h: 600 },
+        ]
+      },
+      {
+        title: 'Screenshots (Store Listing)',
+        assets: [
+          { file: 'Screenshots/Poster 9x16.png',         w: 720,  h: 1080 },
+          { file: 'Screenshots/Poster 9x16 @2x.png',     w: 1440, h: 2160 },
+          { file: 'Screenshots/Box 1x1.png',             w: 1080, h: 1080 },
+          { file: 'Screenshots/Box 1x1 @2x.png',         w: 2160, h: 2160 },
+          { file: 'Screenshots/App Tile 1x1.png',        w: 300,  h: 300 },
+          { file: 'Screenshots/App Tile Square.png',     w: 150,  h: 150 },
+          { file: 'Screenshots/App Tile Small.png',      w: 71,   h: 71 },
+          { file: 'Screenshots/Highlight 16x9.png',      w: 1920, h: 1080 },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'android',
+    name: 'Android (Play Store)',
+    icon: '🤖',
+    sections: [
+      {
+        title: 'App Icon',
+        assets: [
+          { file: 'Android/app-icon-512.png',                w: 512, h: 512 },
+          { file: 'Android/app-icon-192.png',                w: 192, h: 192 },
+          { file: 'Android/mipmap-hdpi/ic_launcher.png',     w: 72,  h: 72 },
+          { file: 'Android/mipmap-xhdpi/ic_launcher.png',    w: 96,  h: 96 },
+          { file: 'Android/mipmap-xxhdpi/ic_launcher.png',   w: 144, h: 144 },
+          { file: 'Android/mipmap-xxxhdpi/ic_launcher.png',  w: 192, h: 192 },
+        ]
+      },
+      {
+        title: 'Play Store Graphics',
+        assets: [
+          { file: 'Android/play-store-feature-graphic-1024x500.png', w: 1024, h: 500 },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'ios',
+    name: 'iOS (App Store)',
+    icon: '🍎',
+    sections: [
+      {
+        title: 'App Store & iPhone',
+        assets: [
+          { file: 'iOS/AppStore-1024.png',   w: 1024, h: 1024 },
+          { file: 'iOS/iPhone-180.png',      w: 180,  h: 180 },
+          { file: 'iOS/iPhone-120.png',      w: 120,  h: 120 },
+          { file: 'iOS/iPhone-87.png',       w: 87,   h: 87 },
+          { file: 'iOS/iPhone-80.png',       w: 80,   h: 80 },
+          { file: 'iOS/iPhone-60.png',       w: 60,   h: 60 },
+          { file: 'iOS/iPhone-58.png',       w: 58,   h: 58 },
+          { file: 'iOS/iPhone-40.png',       w: 40,   h: 40 },
+          { file: 'iOS/iPhone-29.png',       w: 29,   h: 29 },
+        ]
+      },
+      {
+        title: 'iPad',
+        assets: [
+          { file: 'iOS/iPad-167.png',  w: 167, h: 167 },
+          { file: 'iOS/iPad-152.png',  w: 152, h: 152 },
+          { file: 'iOS/iPad-76.png',   w: 76,  h: 76 },
+          { file: 'iOS/iPad-80.png',   w: 80,  h: 80 },
+          { file: 'iOS/iPad-40.png',   w: 40,  h: 40 },
+          { file: 'iOS/iPad-29.png',   w: 29,  h: 29 },
+          { file: 'iOS/iPad-20.png',   w: 20,  h: 20 },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'chrome',
+    name: 'Chrome Extension',
+    icon: '🌐',
+    sections: [
+      {
+        title: 'Extension Icons',
+        assets: [
+          { file: 'Chrome/icon-128.png', w: 128, h: 128 },
+          { file: 'Chrome/icon-48.png',  w: 48,  h: 48 },
+          { file: 'Chrome/icon-32.png',  w: 32,  h: 32 },
+          { file: 'Chrome/icon-16.png',  w: 16,  h: 16 },
+        ]
+      },
+      {
+        title: 'Chrome Web Store Graphics',
+        assets: [
+          { file: 'Chrome/store-icon-128.png',             w: 128,  h: 128 },
+          { file: 'Chrome/small-promo-tile-440x280.png',   w: 440,  h: 280 },
+          { file: 'Chrome/marquee-promo-tile-1400x560.png',w: 1400, h: 560 },
+        ]
+      },
+    ]
+  },
+];
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+
+let sourceImage = null;   // HTMLImageElement
+let sourceFileName = '';
+let fitMode = 'contain';  // 'contain' or 'cover'
+
+// Selected assets: Set of "platformId/file"
+const selectedAssets = new Set();
+
+// ─────────────────────────────────────────────
+// INIT UI
+// ─────────────────────────────────────────────
+
+function init() {
+  buildPlatformCards();
+
+  const dz = document.getElementById('dropzone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) loadFile(file);
+  });
+  dz.addEventListener('click', e => {
+    if (e.target.closest('#imagePreview')) return;
+    document.getElementById('fileInput').click();
+  });
+
+  document.getElementById('fileInput').addEventListener('change', e => {
+    if (e.target.files[0]) loadFile(e.target.files[0]);
+  });
+}
+
+function buildPlatformCards() {
+  const grid = document.getElementById('platformsGrid');
+  PLATFORMS.forEach(p => {
+    const total = p.sections.reduce((s, sec) => s + sec.assets.length, 0);
+    const card = document.createElement('div');
+    card.className = 'platform-card';
+    card.id = 'card-' + p.id;
+    card.innerHTML = `
+      <div class="platform-header">
+        <span class="platform-icon">${p.icon}</span>
+        <span class="platform-name">${p.name}</span>
+        <div class="platform-check"></div>
+      </div>
+      <div class="platform-count">${total} assets available</div>
+    `;
+    card.addEventListener('click', () => togglePlatform(p.id));
+    grid.appendChild(card);
+  });
+}
+
+// ─────────────────────────────────────────────
+// PLATFORM TOGGLE
+// ─────────────────────────────────────────────
+
+function togglePlatform(platformId) {
+  const card = document.getElementById('card-' + platformId);
+  const isSelected = card.classList.contains('selected');
+
+  if (isSelected) {
+    card.classList.remove('selected');
+    card.querySelector('.platform-check').textContent = '';
+    // Deselect all assets of this platform
+    const p = PLATFORMS.find(x => x.id === platformId);
+    p.sections.forEach(sec => sec.assets.forEach(a => {
+      selectedAssets.delete(platformId + '/' + a.file);
+    }));
+  } else {
+    card.classList.add('selected');
+    card.querySelector('.platform-check').textContent = '✓';
+    // Select all assets of this platform
+    const p = PLATFORMS.find(x => x.id === platformId);
+    p.sections.forEach(sec => sec.assets.forEach(a => {
+      selectedAssets.add(platformId + '/' + a.file);
+    }));
+  }
+
+  rebuildAssetPanel();
+  updateSummary();
+  updateGenerateBtn();
+}
+
+// ─────────────────────────────────────────────
+// ASSET PANEL
+// ─────────────────────────────────────────────
+
+function rebuildAssetPanel() {
+  const panel = document.getElementById('assetPanel');
+  const selectedPlatforms = PLATFORMS.filter(p =>
+    document.getElementById('card-' + p.id)?.classList.contains('selected')
+  );
+
+  if (selectedPlatforms.length === 0) {
+    panel.classList.remove('visible');
+    panel.innerHTML = '';
+    return;
+  }
+
+  panel.classList.add('visible');
+  panel.innerHTML = '';
+
+  const header = document.createElement('div');
+  header.className = 'asset-panel-header';
+  header.innerHTML = `
+    <div class="asset-panel-title">📋 <span>Select assets to generate</span></div>
+    <div class="asset-panel-actions">
+      <button class="btn-sm" onclick="selectAll()">All</button>
+      <button class="btn-sm" onclick="selectNone()">None</button>
+    </div>
+  `;
+  panel.appendChild(header);
+
+  selectedPlatforms.forEach(p => {
+    p.sections.forEach(sec => {
+      const section = document.createElement('div');
+      section.className = 'asset-section';
+
+      const stitle = document.createElement('div');
+      stitle.className = 'asset-section-title';
+      stitle.textContent = `${p.icon} ${p.name} — ${sec.title}`;
+      section.appendChild(stitle);
+
+      const list = document.createElement('div');
+      list.className = 'asset-list';
+
+      sec.assets.forEach(a => {
+        const key = p.id + '/' + a.file;
+        const item = document.createElement('div');
+        item.className = 'asset-item' + (selectedAssets.has(key) ? ' checked' : '');
+        item.dataset.key = key;
+        item.innerHTML = `
+          <div class="asset-cb">${selectedAssets.has(key) ? '✓' : ''}</div>
+          <span class="asset-name">${a.file.split('/').pop()}</span>
+          <span class="asset-size">${a.w}×${a.h}</span>
+        `;
+        item.addEventListener('click', () => toggleAsset(key, item));
+        list.appendChild(item);
+      });
+
+      section.appendChild(list);
+      panel.appendChild(section);
+    });
+  });
+}
+
+function toggleAsset(key, el) {
+  if (selectedAssets.has(key)) {
+    selectedAssets.delete(key);
+    el.classList.remove('checked');
+    el.querySelector('.asset-cb').textContent = '';
+  } else {
+    selectedAssets.add(key);
+    el.classList.add('checked');
+    el.querySelector('.asset-cb').textContent = '✓';
+  }
+  updateSummary();
+  updateGenerateBtn();
+}
+
+function selectAll() {
+  document.querySelectorAll('.asset-item').forEach(el => {
+    const key = el.dataset.key;
+    selectedAssets.add(key);
+    el.classList.add('checked');
+    el.querySelector('.asset-cb').textContent = '✓';
+  });
+  updateSummary();
+  updateGenerateBtn();
+}
+
+function selectNone() {
+  document.querySelectorAll('.asset-item').forEach(el => {
+    const key = el.dataset.key;
+    selectedAssets.delete(key);
+    el.classList.remove('checked');
+    el.querySelector('.asset-cb').textContent = '';
+  });
+  updateSummary();
+  updateGenerateBtn();
+}
+
+// ─────────────────────────────────────────────
+// OPTIONS
+// ─────────────────────────────────────────────
+
+function toggleOption(id, mode) {
+  fitMode = mode;
+  document.getElementById('toggleContain').classList.toggle('on', mode === 'contain');
+  document.getElementById('toggleCover').classList.toggle('on', mode === 'cover');
+}
+
+// ─────────────────────────────────────────────
+// IMAGE LOAD
+// ─────────────────────────────────────────────
+
+function loadFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      sourceImage = img;
+      sourceFileName = file.name;
+      showPreview(img, file.name);
+      updateGenerateBtn();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showPreview(img, name) {
+  const dz = document.getElementById('dropzone');
+  dz.classList.add('has-image');
+  dz.querySelector('.dropzone-icon').style.display = 'none';
+  dz.querySelectorAll('.dropzone-text').forEach(el => el.style.display = 'none');
+
+  const preview = document.getElementById('imagePreview');
+  preview.style.display = 'flex';
+  document.getElementById('previewImg').src = img.src;
+  document.getElementById('previewName').textContent = name;
+  document.getElementById('previewDims').textContent = `${img.width} × ${img.height} px`;
+}
+
+// ─────────────────────────────────────────────
+// SUMMARY
+// ─────────────────────────────────────────────
+
+function updateSummary() {
+  const bar = document.getElementById('summaryBar');
+  const count = selectedAssets.size;
+  if (count === 0) {
+    bar.innerHTML = 'Select platforms and assets above to see a summary.';
+    return;
+  }
+
+  // Count per platform
+  const perPlatform = {};
+  selectedAssets.forEach(key => {
+    const pid = key.split('/')[0];
+    perPlatform[pid] = (perPlatform[pid] || 0) + 1;
+  });
+
+  const parts = Object.entries(perPlatform).map(([pid, n]) => {
+    const p = PLATFORMS.find(x => x.id === pid);
+    return `${p.icon} ${n} ${p.name}`;
+  });
+
+  bar.innerHTML = `<span class="count">${count} assets</span> selected — ${parts.join(' &nbsp;·&nbsp; ')}`;
+}
+
+function updateGenerateBtn() {
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = !(sourceImage && selectedAssets.size > 0);
+}
+
+// ─────────────────────────────────────────────
+// IMAGE RENDERING
+// ─────────────────────────────────────────────
+
+function renderContain(src, w, h) {
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+
+  const scale = Math.min(w / src.width, h / src.height);
+  const nw = Math.max(1, Math.min(w, Math.round(src.width * scale)));
+  const nh = Math.max(1, Math.min(h, Math.round(src.height * scale)));
+  const x = Math.floor((w - nw) / 2);
+  const y = Math.floor((h - nh) / 2);
+
+  ctx.drawImage(src, x, y, nw, nh);
+  return canvas;
+}
+
+function renderCover(src, w, h) {
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+
+  const scale = Math.max(w / src.width, h / src.height);
+  const nw = Math.round(src.width * scale);
+  const nh = Math.round(src.height * scale);
+  const x = Math.floor((w - nw) / 2);
+  const y = Math.floor((h - nh) / 2);
+
+  ctx.drawImage(src, x, y, nw, nh);
+  return canvas;
+}
+
+// ─── Badge Logo Processing ───────────────────
+
+function renderBadgeLogo(src, w, h) {
+  // Step 1: render at 256x256 with contain
+  const base = renderContain(src, 256, 256);
+  const baseCtx = base.getContext('2d');
+  let imgData = baseCtx.getImageData(0, 0, 256, 256);
+
+  // Step 2: prepare glyph (remove background)
+  imgData = prepareBadgeGlyph(imgData, 256, 256);
+
+  // Step 3: write back to canvas, then crop to foreground
+  baseCtx.putImageData(imgData, 0, 0);
+  const cropped = cropToForeground(base, 32, 0.12);
+
+  // Step 4: resize/contain to target
+  const final = renderContain(cropped, w, h);
+  forceWhiteKeepAlpha(final);
+  return final;
+}
+
+function prepareBadgeGlyph(imgData, W, H) {
+  const before = countAlphaAbove(imgData, 16);
+
+  // Attempt: dominant color masking
+  let attempt = cloneImageData(imgData, W, H);
+  if (tryMaskByDominantColor(attempt, W, H)) {
+    if (isMaskGood(before, attempt, 16)) return attempt;
+  }
+
+  // Attempt: edge background mask
+  attempt = cloneImageData(imgData, W, H);
+  if (tryEdgeBackgroundMask(attempt, W, H)) {
+    if (isMaskGood(before, attempt, 16)) return attempt;
+  }
+
+  // Attempt: luminance mask
+  attempt = cloneImageData(imgData, W, H);
+  applyLuminanceMask(attempt, W, H);
+  if (countAlphaAbove(attempt, 16) > 10) return attempt;
+
+  // Fallback: use original, force white
+  const fallback = cloneImageData(imgData, W, H);
+  forceWhiteRGBA(fallback);
+  return fallback;
+}
+
+function cloneImageData(imgData, W, H) {
+  const d = new Uint8ClampedArray(imgData.data);
+  return new ImageData(d, W, H);
+}
+
+function countAlphaAbove(imgData, threshold) {
+  const data = imgData.data;
+  let count = 0;
+  for (let i = 3; i < data.length; i += 4) if (data[i] > threshold) count++;
+  return count;
+}
+
+function isMaskGood(before, imgData, threshold) {
+  const after = countAlphaAbove(imgData, threshold);
+  if (after <= 10) return false;
+  return after / Math.max(1, before) < 0.85;
+}
+
+function estimateDominantColor(data) {
+  const buckets = new Int32Array(4096);
+  let visible = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i+3] === 0) continue;
+    visible++;
+    const key = ((data[i] >> 4) << 8) | ((data[i+1] >> 4) << 4) | (data[i+2] >> 4);
+    buckets[key]++;
+  }
+  if (visible === 0) return { r: 255, g: 255, b: 255, ratio: 1, count: 0 };
+  let best = 0, bestCount = -1;
+  for (let i = 0; i < 4096; i++) if (buckets[i] > bestCount) { bestCount = buckets[i]; best = i; }
+  return {
+    r: ((best >> 8) & 0xF) * 16 + 8,
+    g: ((best >> 4) & 0xF) * 16 + 8,
+    b: (best & 0xF) * 16 + 8,
+    ratio: bestCount / visible,
+    count: visible
+  };
+}
+
+function colorDist(r, g, b, br, bg, bb) {
+  const dr = r - br, dg = g - bg, db = b - bb;
+  return Math.sqrt(dr*dr + dg*dg + db*db);
+}
+
+function otsuThreshold(hist, total) {
+  let sum = 0;
+  for (let i = 0; i < 256; i++) sum += i * hist[i];
+  let sumB = 0, wB = 0, varMax = -1, thr = 0;
+  for (let i = 0; i < 256; i++) {
+    wB += hist[i];
+    if (wB === 0) continue;
+    const wF = total - wB;
+    if (wF === 0) break;
+    sumB += i * hist[i];
+    const mB = sumB / wB, mF = (sum - sumB) / wF;
+    const diff = mB - mF;
+    const v = wB * wF * diff * diff;
+    if (v > varMax) { varMax = v; thr = i; }
+  }
+  return thr;
+}
+
+const MAX_DIST = Math.sqrt(255*255*3);
+
+function tryMaskByDominantColor(imgData, W, H) {
+  const data = imgData.data;
+  const dom = estimateDominantColor(data);
+  if (dom.count < 200 || dom.ratio < 0.22) return false;
+
+  // Check max distance
+  let maxDist = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i+3] === 0) continue;
+    const d = colorDist(data[i], data[i+1], data[i+2], dom.r, dom.g, dom.b);
+    if (d > maxDist) maxDist = d;
+  }
+  if (maxDist < 18) return false;
+
+  // Build histogram
+  const hist = new Int32Array(256);
+  let total = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i+3] === 0) continue;
+    const d = colorDist(data[i], data[i+1], data[i+2], dom.r, dom.g, dom.b);
+    const bin = Math.min(255, Math.round((d / MAX_DIST) * 255));
+    hist[bin]++;
+    total++;
+  }
+  if (total < 200) return false;
+
+  const thrBin = otsuThreshold(hist, total);
+  const thrDist = (thrBin / 255) * MAX_DIST;
+  const softness = 10;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const a0 = data[i+3];
+    if (a0 === 0) { data[i] = 255; data[i+1] = 255; data[i+2] = 255; continue; }
+    const d = colorDist(data[i], data[i+1], data[i+2], dom.r, dom.g, dom.b);
+    let t = (d - (thrDist - softness)) / (2 * softness);
+    t = Math.max(0, Math.min(1, t));
+    let a = Math.round(255 * (a0 / 255) * t);
+    if (a < 18) a = 0; else if (a > 245) a = 255;
+    data[i] = 255; data[i+1] = 255; data[i+2] = 255; data[i+3] = a;
+  }
+  return true;
+}
+
+function tryEdgeBackgroundMask(imgData, W, H) {
+  const data = imgData.data;
+  const thickness = Math.max(2, Math.min(24, Math.floor(Math.min(W, H) / 12)));
+  const buckets = new Int32Array(4096);
+  let borderCount = 0;
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const yb = y < thickness || y >= H - thickness;
+      const xb = x < thickness || x >= W - thickness;
+      if (!yb && !xb) continue;
+      const i = (y * W + x) * 4;
+      if (data[i+3] === 0) continue;
+      borderCount++;
+      const key = ((data[i] >> 4) << 8) | ((data[i+1] >> 4) << 4) | (data[i+2] >> 4);
+      buckets[key]++;
+    }
+  }
+
+  if (borderCount < 200) return false;
+  let best = 0, bestCount = -1;
+  for (let i = 0; i < 4096; i++) if (buckets[i] > bestCount) { bestCount = buckets[i]; best = i; }
+  if (bestCount / borderCount < 0.28) return false;
+
+  const bgR = ((best >> 8) & 0xF) * 16 + 8;
+  const bgG = ((best >> 4) & 0xF) * 16 + 8;
+  const bgB = (best & 0xF) * 16 + 8;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const a0 = data[i+3];
+    if (a0 === 0) { data[i] = 255; data[i+1] = 255; data[i+2] = 255; continue; }
+    const d = colorDist(data[i], data[i+1], data[i+2], bgR, bgG, bgB);
+    let t = (d - 16) / (64 - 16);
+    t = Math.max(0, Math.min(1, t));
+    let a = Math.round(255 * (a0 / 255) * t);
+    if (a < 18) a = 0; else if (a > 245) a = 255;
+    data[i] = 255; data[i+1] = 255; data[i+2] = 255; data[i+3] = a;
+  }
+  return true;
+}
+
+function applyLuminanceMask(imgData, W, H) {
+  const data = imgData.data;
+  const thickness = Math.max(2, Math.min(24, Math.floor(Math.min(W, H) / 12)));
+  let sumLum = 0, count = 0;
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const yb = y < thickness || y >= H - thickness;
+      const xb = x < thickness || x >= W - thickness;
+      if (!yb && !xb) continue;
+      const i = (y * W + x) * 4;
+      if (data[i+3] === 0) continue;
+      sumLum += (0.2126 * data[i] + 0.7152 * data[i+1] + 0.0722 * data[i+2]) / 255;
+      count++;
+    }
+  }
+
+  const borderLum = count === 0 ? 1 : sumLum / count;
+  const bgIsLight = borderLum >= 0.55;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const a0 = data[i+3];
+    if (a0 === 0) { data[i] = 255; data[i+1] = 255; data[i+2] = 255; continue; }
+    const lum = (0.2126 * data[i] + 0.7152 * data[i+1] + 0.0722 * data[i+2]) / 255;
+    let a01 = bgIsLight ? (1 - lum) : lum;
+    a01 = Math.pow(a01, 0.85);
+    let a = Math.round(a01 * 255);
+    if (a < 22) a = 0; else if (a > 245) a = 255;
+    data[i] = 255; data[i+1] = 255; data[i+2] = 255; data[i+3] = a;
+  }
+}
+
+function forceWhiteRGBA(imgData) {
+  const data = imgData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i+3] === 0) continue;
+    data[i] = 255; data[i+1] = 255; data[i+2] = 255;
+  }
+}
+
+function forceWhiteKeepAlpha(canvas) {
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  forceWhiteRGBA(imgData);
+  ctx.putImageData(imgData, 0, 0);
+}
+
+function cropToForeground(canvas, alphaThreshold, padFraction) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const imgData = ctx.getImageData(0, 0, W, H);
+  const data = imgData.data;
+
+  let minX = W, minY = H, maxX = -1, maxY = -1;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (data[(y * W + x) * 4 + 3] <= alphaThreshold) continue;
+      if (x < minX) minX = x;
+      if (y < minY) minY = y;
+      if (x > maxX) maxX = x;
+      if (y > maxY) maxY = y;
+    }
+  }
+
+  if (maxX < 0) return canvas;
+  const w = maxX - minX + 1, h = maxY - minY + 1;
+  const pad = Math.round(Math.max(w, h) * padFraction);
+  const x0 = Math.max(0, minX - pad), y0 = Math.max(0, minY - pad);
+  const x1 = Math.min(W - 1, maxX + pad), y1 = Math.min(H - 1, maxY + pad);
+  const cw = x1 - x0 + 1, ch = y1 - y0 + 1;
+
+  const out = document.createElement('canvas');
+  out.width = cw; out.height = ch;
+  out.getContext('2d').drawImage(canvas, x0, y0, cw, ch, 0, 0, cw, ch);
+  return out;
+}
+
+// ─────────────────────────────────────────────
+// CANVAS → PNG BLOB
+// ─────────────────────────────────────────────
+
+function canvasToBlob(canvas) {
+  return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+}
+
+// ─────────────────────────────────────────────
+// LOGGING
+// ─────────────────────────────────────────────
+
+function log(msg, type = 'info') {
+  const out = document.getElementById('logOutput');
+  const line = document.createElement('div');
+  line.className = 'log-' + type;
+  line.textContent = `[${new Date().toTimeString().slice(0,8)}] ${msg}`;
+  out.appendChild(line);
+  out.scrollTop = out.scrollHeight;
+}
+
+// ─────────────────────────────────────────────
+// GENERATE
+// ─────────────────────────────────────────────
+
+async function generate() {
+  const btn = document.getElementById('generateBtn');
+  const logPanel = document.getElementById('logPanel');
+
+  btn.classList.add('loading');
+  btn.disabled = true;
+  logPanel.classList.add('visible');
+  document.getElementById('logOutput').innerHTML = '';
+
+  log('Starting asset generation...', 'info');
+
+  const zip = new JSZip();
+  let created = 0, errors = 0;
+
+  // Build a lookup: key → asset spec
+  const assetMap = {};
+  PLATFORMS.forEach(p => {
+    p.sections.forEach(sec => {
+      sec.assets.forEach(a => {
+        assetMap[p.id + '/' + a.file] = { ...a, platformId: p.id };
+      });
+    });
+  });
+
+  for (const key of selectedAssets) {
+    const spec = assetMap[key];
+    if (!spec) continue;
+
+    try {
+      let canvas;
+      if (spec.badge) {
+        canvas = renderBadgeLogo(sourceImage, spec.w, spec.h);
+      } else if (fitMode === 'cover') {
+        canvas = renderCover(sourceImage, spec.w, spec.h);
+      } else {
+        canvas = renderContain(sourceImage, spec.w, spec.h);
+      }
+
+      const blob = await canvasToBlob(canvas);
+      const arrayBuffer = await blob.arrayBuffer();
+      zip.file(spec.file, arrayBuffer);
+
+      log(`OK  ${spec.file}  (${spec.w}×${spec.h})`, 'ok');
+      created++;
+    } catch (err) {
+      log(`ERR ${spec.file}: ${err.message}`, 'err');
+      errors++;
+    }
+
+    // Yield to browser
+    await new Promise(r => setTimeout(r, 0));
+  }
+
+  log(`Done. ${created} created, ${errors} errors.`, 'info');
+
+  // Generate zip
+  log('Compressing ZIP...', 'info');
+  const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+
+  // Download
+  const url = URL.createObjectURL(zipBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'visual-assets.zip';
+  a.click();
+  URL.revokeObjectURL(url);
+
+  log('ZIP downloaded!', 'ok');
+
+  btn.classList.remove('loading');
+  btn.disabled = false;
+}
+
+// ─────────────────────────────────────────────
+// START
+// ─────────────────────────────────────────────
+
+init();
+</script>
+</body>
+</html>
