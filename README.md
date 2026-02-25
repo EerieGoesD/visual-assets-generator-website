@@ -1,5 +1,6 @@
 Generate all platform visual assets from a single source image — Windows Store, Android, iOS & Chrome Extension.
-**[→ Live Tool](https://your-username.github.io/visual-assets-generator)**
+
+**[→ Hosted Here](https://your-username.github.io/visual-assets-generator)**
 
 ---
 
