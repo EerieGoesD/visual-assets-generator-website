@@ -1,10 +1,13 @@
-Generate all platform visual assets from a single source image — Windows Store, Android, iOS & Chrome Extension.
+# 🖼️ Visual Assets Generator
+
+Generate all platform visual assets from a single source image — Windows Store, Android, iOS, Chrome Extension & Favicon.
 
 **[→ Hosted Here](https://eeriegoesd.com/visual-assets-generator-website/)**
 
 ---
 
 ## What it does
+
 Upload one icon image. Select your target platforms. Download a ZIP with every asset pre-sized, named, and organized into folders. Ready to drop into your project.
 
 | Platform | Assets included |
@@ -13,6 +16,7 @@ Upload one icon image. Select your target platforms. Download a ZIP with every a
 | 🤖 Android (Play Store) | 7 assets — mipmap densities + feature graphic |
 | 🍎 iOS (App Store) | 16 assets — iPhone & iPad icon sizes |
 | 🌐 Chrome Extension | 7 assets — extension icons + Web Store promo tiles |
+| 🌐 Favicon (Browser Tab) | 6 assets — standard favicon sizes + Apple touch icon |
 
 The ZIP will contain folders like:
 
@@ -35,10 +39,15 @@ visual-assets.zip
 │   ├── AppStore-1024.png
 │   ├── iPhone-180.png
 │   └── ...
-└── Chrome/
-    ├── icon-128.png
-    ├── small-promo-tile-440x280.png
-    └── ...
+├── Chrome/
+│   ├── icon-128.png
+│   ├── small-promo-tile-440x280.png
+│   └── ...
+└── Favicon/
+    ├── favicon-16x16.png
+    ├── favicon-32x32.png
+    ├── favicon-64x64.png
+    └── apple-touch-icon.png
 ```
 
 ## Windows Store — Badge Logo note
@@ -48,7 +57,3 @@ Badge logos must pass [WACK](https://learn.microsoft.com/en-us/windows/uwp/debug
 - Background must be **transparent**
 
 This tool ports the background-removal algorithm from the companion Windows app, using dominant color detection, Otsu thresholding, and foreground cropping to produce compliant badge logos automatically.
-
-## License
-
-[MIT](LICENSE)
