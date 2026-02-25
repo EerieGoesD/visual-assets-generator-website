@@ -1,6 +1,6 @@
 Generate all platform visual assets from a single source image — Windows Store, Android, iOS & Chrome Extension.
 
-**[→ Hosted Here](https://your-username.github.io/visual-assets-generator](https://eeriegoesd.com/visual-assets-generator-website/))**
+**[→ Hosted Here](https://eeriegoesd.com/visual-assets-generator-website/)**
 
 ---
 
