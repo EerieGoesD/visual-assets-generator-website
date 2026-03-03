@@ -61,7 +61,7 @@ visual-assets.zip
     ├── icon-128.png
     ├── icon-256.png
     └── icon-512.png
-
+```
 ## Windows Store — Badge Logo note
 
 Badge logos must pass [WACK](https://learn.microsoft.com/en-us/windows/uwp/debug-test-perf/windows-app-certification-kit) validation:
