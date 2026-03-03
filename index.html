@@ -57,8 +57,10 @@
     "iOS App Store icons",
     "Chrome Extension icons and promo tiles",
     "ZIP download",
-    "No install or signup required"
-  ]
+    "No install or signup required",
+    "Favicon generation",
+    "Social / Open Graph image generation",
+    "Flatpak (Flathub) icons"  ]
 }
 </script>
 <!-- Google tag (gtag.js) -->
@@ -635,6 +637,9 @@
     <p class="subtitle">
       Upload one source image → generate all platform assets → download ZIP.<br>
       Supports Windows Store · Android · iOS · Chrome Extension.
+    <p style="margin-top:14px; font-family:var(--mono); font-size:11px; color:var(--muted);">
+      🖥️ 7 platforms · 🔒 Runs entirely in your browser · ☕ Free forever
+    </p>
     </p>
   </div>
 </header>
@@ -717,6 +722,34 @@
       <span style="color:var(--border)">·</span>
       <a href="https://buymeacoffee.com/eeriegoesd" target="_blank" rel="noreferrer" style="color:var(--muted);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='var(--accent2)'" onmouseout="this.style.color='var(--muted)'">☕ Buy Me a Coffee</a>
     </div>
+
+<div class="divider"></div>
+    <h2 style="font-size:18px; font-weight:800; color:#fff; margin:32px 0 20px;">Frequently Asked Questions</h2>
+
+    <details style="margin-bottom:12px; border:1px solid var(--border); border-radius:8px; background:var(--surface);">
+      <summary style="padding:14px 18px; cursor:pointer; font-weight:700; font-size:13px; color:var(--text);">What platforms are supported?</summary>
+      <p style="padding:0 18px 14px; font-size:13px; color:var(--muted); line-height:1.7; font-family:var(--mono);">Microsoft Store (WACK-compliant), Android Play Store, iOS App Store, Chrome Extension, Favicon, Social/OG images, and Flatpak. Each platform includes all required icon sizes and store listing graphics.</p>
+    </details>
+
+    <details style="margin-bottom:12px; border:1px solid var(--border); border-radius:8px; background:var(--surface);">
+      <summary style="padding:14px 18px; cursor:pointer; font-weight:700; font-size:13px; color:var(--text);">Is my image uploaded to a server?</summary>
+      <p style="padding:0 18px 14px; font-size:13px; color:var(--muted); line-height:1.7; font-family:var(--mono);">No. All image processing happens locally in your browser using the Canvas API. Your image never leaves your device — nothing is uploaded anywhere.</p>
+    </details>
+
+    <details style="margin-bottom:12px; border:1px solid var(--border); border-radius:8px; background:var(--surface);">
+      <summary style="padding:14px 18px; cursor:pointer; font-weight:700; font-size:13px; color:var(--text);">What image size should I use?</summary>
+      <p style="padding:0 18px 14px; font-size:13px; color:var(--muted); line-height:1.7; font-family:var(--mono);">At least 1024×1024 pixels for best results, since some assets (like iOS App Store icons) require that resolution. Larger images will be scaled down without quality loss. PNG is preferred for transparency support.</p>
+    </details>
+
+    <details style="margin-bottom:12px; border:1px solid var(--border); border-radius:8px; background:var(--surface);">
+      <summary style="padding:14px 18px; cursor:pointer; font-weight:700; font-size:13px; color:var(--text);">What's the difference between Letterbox and Crop?</summary>
+      <p style="padding:0 18px 14px; font-size:13px; color:var(--muted); line-height:1.7; font-family:var(--mono);">Letterbox (contain) fits your entire image inside the target dimensions, adding transparent padding if the aspect ratio doesn't match. Crop (cover) fills the entire target area, cutting off edges if needed. For square icons, both produce the same result.</p>
+    </details>
+
+    <details style="margin-bottom:12px; border:1px solid var(--border); border-radius:8px; background:var(--surface);">
+      <summary style="padding:14px 18px; cursor:pointer; font-weight:700; font-size:13px; color:var(--text);">How do Windows Store badge logos work?</summary>
+      <p style="padding:0 18px 14px; font-size:13px; color:var(--muted); line-height:1.7; font-family:var(--mono);">Badge logos must pass Microsoft's WACK validation: all visible pixels must be pure white on a transparent background. This tool automatically detects and removes the background using dominant color detection and Otsu thresholding, then converts the foreground to white.</p>
+    </details>
 
     <div id="logPanel">
       <div class="log-header">// Output Log</div>
@@ -941,7 +974,7 @@ const PLATFORMS = [
       },
     ]
   },
-  
+
   {
     id: 'flatpak',
     name: 'Flatpak (Flathub)',
