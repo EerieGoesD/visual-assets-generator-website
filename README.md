@@ -17,6 +17,8 @@ Upload one icon image. Select your target platforms. Download a ZIP with every a
 | 🍎 iOS (App Store) | 16 assets — iPhone & iPad icon sizes |
 | 🌐 Chrome Extension | 7 assets — extension icons + Web Store promo tiles |
 | 🌐 Favicon (Browser Tab) | 6 assets — standard favicon sizes + Apple touch icon |
+| 🔗 Social / OG Image | 5 assets — Open Graph, Twitter Card, LinkedIn, Facebook cover, YouTube thumbnail |
+| 📦 Flatpak (Flathub) | 4 assets — app icons at 64, 128, 256, 512px |
 
 The ZIP will contain folders like:
 
@@ -43,12 +45,22 @@ visual-assets.zip
 │   ├── icon-128.png
 │   ├── small-promo-tile-440x280.png
 │   └── ...
-└── Favicon/
-    ├── favicon-16x16.png
-    ├── favicon-32x32.png
-    ├── favicon-64x64.png
-    └── apple-touch-icon.png
-```
+├── Favicon/
+│   ├── favicon-16x16.png
+│   ├── favicon-32x32.png
+│   ├── favicon-64x64.png
+│   └── apple-touch-icon.png
+├── Social/
+│   ├── og-image-1200x630.png
+│   ├── twitter-card-1200x628.png
+│   ├── linkedin-share-1200x627.png
+│   ├── facebook-cover-820x312.png
+│   └── youtube-thumbnail-1280x720.png
+└── Flatpak/
+    ├── icon-64.png
+    ├── icon-128.png
+    ├── icon-256.png
+    └── icon-512.png
 
 ## Windows Store — Badge Logo note
 
