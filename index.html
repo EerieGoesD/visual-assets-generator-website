@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <!-- Primary SEO -->
-<title>Visual Assets Generator — App Icons for Windows, Android, iOS & Chrome</title>
-<meta name="description" content="Free browser-based tool to generate all platform app icons and visual assets from a single image. Supports Microsoft Store, Android Play Store, iOS App Store, and Chrome Extension. No install, no signup." />
-<meta name="keywords" content="app icon generator, visual assets generator, windows store assets, android icons, ios app icons, chrome extension icons, microsoft store wack, badge logo generator, free icon resizer" />
+<title>Visual Assets Generator — App Icons for Windows, macOS, Android, iOS & Chrome</title>
+<meta name="description" content="Free browser-based tool to generate all platform app icons and visual assets from a single image. Supports Microsoft Store, Windows .ico, macOS, Android Play Store, iOS App Store, Chrome Extension, and Flutter naming. No install, no signup." />
+<meta name="keywords" content="app icon generator, visual assets generator, windows store assets, windows ico, macos icons, android icons, ios app icons, chrome extension icons, microsoft store wack, badge logo generator, free icon resizer, flutter icons" />
 <meta name="author" content="EERIE" />
 <meta name="google-site-verification" content="013d1db42c419216" />
 <link rel="canonical" href="https://eeriegoesd.com/visual-assets-generator-website/" />
@@ -17,8 +17,8 @@
 <!-- Open Graph (Facebook, LinkedIn, Discord) -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://eeriegoesd.com/visual-assets-generator-website/" />
-<meta property="og:title" content="Visual Assets Generator — App Icons for Windows, Android, iOS & Chrome" />
-<meta property="og:description" content="Upload one image, download all your app icons and store assets as a ZIP. Supports Microsoft Store, Android, iOS, and Chrome Extension. Free, runs entirely in the browser." />
+<meta property="og:title" content="Visual Assets Generator — App Icons for Windows, macOS, Android, iOS & Chrome" />
+<meta property="og:description" content="Upload one image, download all your app icons and store assets as a ZIP. Supports Microsoft Store, Windows .ico, macOS, Android, iOS, Chrome Extension, and Flutter naming. Free, runs entirely in the browser." />
 <meta property="og:image" content="https://eeriegoesd.com/visual-assets-generator-website/og-preview.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -27,7 +27,7 @@
 <!-- Twitter / X Card -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:url" content="https://eeriegoesd.com/visual-assets-generator-website/" />
-<meta name="twitter:title" content="Visual Assets Generator — App Icons for Windows, Android, iOS & Chrome" />
+<meta name="twitter:title" content="Visual Assets Generator — App Icons for Windows, macOS, Android, iOS & Chrome" />
 <meta name="twitter:description" content="Upload one image, download all your app icons and store assets as a ZIP. Free, runs entirely in the browser." />
 <meta name="twitter:image" content="https://eeriegoesd.com/visual-assets-generator-website/og-preview.png" />
 
@@ -38,7 +38,7 @@
   "@type": "WebApplication",
   "name": "Visual Assets Generator",
   "url": "https://eeriegoesd.com/visual-assets-generator-website/",
-  "description": "Free browser-based tool to generate all platform app icons and visual assets from a single image. Supports Microsoft Store, Android Play Store, iOS App Store, and Chrome Extension.",
+  "description": "Free browser-based tool to generate all platform app icons and visual assets from a single image. Supports Microsoft Store, Windows .ico, macOS, Android Play Store, iOS App Store, Chrome Extension, and Flutter naming.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Any",
   "offers": {
@@ -53,9 +53,12 @@
   },
   "featureList": [
     "Microsoft Store visual assets (WACK compliant)",
+    "Windows .ico desktop app icon",
+    "macOS app icons",
     "Android Play Store icons",
     "iOS App Store icons",
     "Chrome Extension icons and promo tiles",
+    "Flutter naming convention support",
     "ZIP download",
     "No install or signup required",
     "Favicon generation",
@@ -636,9 +639,9 @@
     <h1>App Icon &amp;<br><span>Asset Exporter</span></h1>
     <p class="subtitle">
       Upload one source image → generate all platform assets → download ZIP.<br>
-      Supports Windows Store · Android · iOS · Chrome Extension.
+      Supports Windows Store · macOS · Android · iOS · Chrome Extension.
     <p style="margin-top:14px; font-family:var(--mono); font-size:11px; color:var(--muted);">
-      🖥️ 7 platforms · 🔒 Runs entirely in your browser · ☕ Free forever
+      🖥️ 8 platforms · 🔒 Runs entirely in your browser · ☕ Free forever
     </p>
     </p>
   </div>
@@ -707,6 +710,13 @@
       </div>
     </div>
 
+    <div class="options-row" style="margin-bottom:24px;">
+      <div class="toggle-option" id="toggleFlutter" onclick="toggleFlutter()">
+        <div class="toggle-box"></div>
+        <div class="toggle-label">Flutter naming convention</div>
+      </div>
+    </div>
+
     <div class="summary-bar" id="summaryBar">
       Select platforms and assets above to see a summary.
     </div>
@@ -728,7 +738,7 @@
 
     <details style="margin-bottom:12px; border:1px solid var(--border); border-radius:8px; background:var(--surface);">
       <summary style="padding:14px 18px; cursor:pointer; font-weight:700; font-size:13px; color:var(--text);">What platforms are supported?</summary>
-      <p style="padding:0 18px 14px; font-size:13px; color:var(--muted); line-height:1.7; font-family:var(--mono);">Microsoft Store (WACK-compliant), Android Play Store, iOS App Store, Chrome Extension, Favicon, Social/OG images, and Flatpak. Each platform includes all required icon sizes and store listing graphics.</p>
+      <p style="padding:0 18px 14px; font-size:13px; color:var(--muted); line-height:1.7; font-family:var(--mono);">Microsoft Store (WACK-compliant), Windows desktop .ico, macOS, Android Play Store, iOS App Store, Chrome Extension, Favicon, Social/OG images, and Flatpak. Each platform includes all required icon sizes and store listing graphics.</p>
     </details>
 
     <details style="margin-bottom:12px; border:1px solid var(--border); border-radius:8px; background:var(--surface);">
@@ -749,6 +759,16 @@
     <details style="margin-bottom:12px; border:1px solid var(--border); border-radius:8px; background:var(--surface);">
       <summary style="padding:14px 18px; cursor:pointer; font-weight:700; font-size:13px; color:var(--text);">How do Windows Store badge logos work?</summary>
       <p style="padding:0 18px 14px; font-size:13px; color:var(--muted); line-height:1.7; font-family:var(--mono);">Badge logos must pass Microsoft's WACK validation: all visible pixels must be pure white on a transparent background. This tool automatically detects and removes the background using dominant color detection and Otsu thresholding, then converts the foreground to white.</p>
+    </details>
+
+    <details style="margin-bottom:12px; border:1px solid var(--border); border-radius:8px; background:var(--surface);">
+      <summary style="padding:14px 18px; cursor:pointer; font-weight:700; font-size:13px; color:var(--text);">What is the "Flutter naming convention" option?</summary>
+      <p style="padding:0 18px 14px; font-size:13px; color:var(--muted); line-height:1.7; font-family:var(--mono);">When enabled, iOS and macOS icons are exported with the filenames that Flutter expects (e.g. Icon-App-60x60@2x.png instead of iPhone-120.png). This lets you drop the generated files directly into your Flutter project's asset directories without renaming.</p>
+    </details>
+
+    <details style="margin-bottom:12px; border:1px solid var(--border); border-radius:8px; background:var(--surface);">
+      <summary style="padding:14px 18px; cursor:pointer; font-weight:700; font-size:13px; color:var(--text);">What about macOS and Windows .ico?</summary>
+      <p style="padding:0 18px 14px; font-size:13px; color:var(--muted); line-height:1.7; font-family:var(--mono);">The macOS platform generates all 7 standard app icon sizes (16px to 1024px). The Windows platform includes a Desktop App Icon (.ico) section that generates a multi-resolution .ico file containing 16, 32, 48, 64, 128, and 256px sizes — ready for use as a Windows desktop app icon (e.g. Flutter's Windows runner).</p>
     </details>
 
     <div id="logPanel">
@@ -855,6 +875,12 @@ const PLATFORMS = [
           { file: 'Screenshots/Box 1x1 @2x.png',         w: 2160, h: 2160 },
         ]
       },
+      {
+        title: 'Desktop App Icon (.ico)',
+        assets: [
+          { file: 'Windows/app_icon.ico', w: 256, h: 256, ico: true },
+        ]
+      },
     ]
   },
   {
@@ -911,6 +937,25 @@ const PLATFORMS = [
           { file: 'iOS/iPad-80.png',   w: 80,  h: 80 },
           { file: 'iOS/iPad-152.png',  w: 152, h: 152 },
           { file: 'iOS/iPad-167.png',  w: 167, h: 167 },
+        ]
+      },
+    ]
+  },
+  {
+    id: 'macos',
+    name: 'macOS',
+    icon: '🍏',
+    sections: [
+      {
+        title: 'App Icon',
+        assets: [
+          { file: 'macOS/icon-16.png',   w: 16,   h: 16 },
+          { file: 'macOS/icon-32.png',   w: 32,   h: 32 },
+          { file: 'macOS/icon-64.png',   w: 64,   h: 64 },
+          { file: 'macOS/icon-128.png',  w: 128,  h: 128 },
+          { file: 'macOS/icon-256.png',  w: 256,  h: 256 },
+          { file: 'macOS/icon-512.png',  w: 512,  h: 512 },
+          { file: 'macOS/icon-1024.png', w: 1024, h: 1024 },
         ]
       },
     ]
@@ -1001,6 +1046,44 @@ const PLATFORMS = [
 let sourceImage = null;   // HTMLImageElement
 let sourceFileName = '';
 let fitMode = 'contain';  // 'contain' or 'cover'
+let flutterNaming = false;
+
+// Flutter naming convention map: original file → Flutter file
+const FLUTTER_NAMES = {
+  // iOS
+  'iOS/AppStore-1024.png':  'iOS/Icon-App-1024x1024@1x.png',
+  'iOS/iPhone-180.png':     'iOS/Icon-App-60x60@3x.png',
+  'iOS/iPhone-120.png':     'iOS/Icon-App-60x60@2x.png',
+  'iOS/iPhone-87.png':      'iOS/Icon-App-29x29@3x.png',
+  'iOS/iPhone-80.png':      'iOS/Icon-App-40x40@2x.png',
+  'iOS/iPhone-60.png':      'iOS/Icon-App-20x20@3x.png',
+  'iOS/iPhone-58.png':      'iOS/Icon-App-29x29@2x.png',
+  'iOS/iPhone-40.png':      'iOS/Icon-App-20x20@2x.png',
+  'iOS/iPhone-29.png':      'iOS/Icon-App-29x29@1x.png',
+  'iOS/iPad-20.png':        'iOS/Icon-App-20x20@1x.png',
+  'iOS/iPad-29.png':        'iOS/Icon-App-29x29@1x.png',
+  'iOS/iPad-40.png':        'iOS/Icon-App-20x20@2x.png',
+  'iOS/iPad-76.png':        'iOS/Icon-App-76x76@1x.png',
+  'iOS/iPad-80.png':        'iOS/Icon-App-40x40@2x.png',
+  'iOS/iPad-152.png':       'iOS/Icon-App-76x76@2x.png',
+  'iOS/iPad-167.png':       'iOS/Icon-App-83.5x83.5@2x.png',
+  // macOS
+  'macOS/icon-16.png':      'macOS/app_icon_16.png',
+  'macOS/icon-32.png':      'macOS/app_icon_32.png',
+  'macOS/icon-64.png':      'macOS/app_icon_64.png',
+  'macOS/icon-128.png':     'macOS/app_icon_128.png',
+  'macOS/icon-256.png':     'macOS/app_icon_256.png',
+  'macOS/icon-512.png':     'macOS/app_icon_512.png',
+  'macOS/icon-1024.png':    'macOS/app_icon_1024.png',
+  // Android
+  'Android/mipmap-mdpi/ic_launcher.png':    'Android/mipmap-mdpi/ic_launcher.png',
+  'Android/mipmap-hdpi/ic_launcher.png':    'Android/mipmap-hdpi/ic_launcher.png',
+  'Android/mipmap-xhdpi/ic_launcher.png':   'Android/mipmap-xhdpi/ic_launcher.png',
+  'Android/mipmap-xxhdpi/ic_launcher.png':  'Android/mipmap-xxhdpi/ic_launcher.png',
+  'Android/mipmap-xxxhdpi/ic_launcher.png': 'Android/mipmap-xxxhdpi/ic_launcher.png',
+  // Windows
+  'Windows/app_icon.ico':   'Windows/app_icon.ico',
+};
 
 // Selected assets: Set of "platformId/file"
 const selectedAssets = new Set();
@@ -1189,6 +1272,11 @@ function toggleOption(id, mode) {
   fitMode = mode;
   document.getElementById('toggleContain').classList.toggle('on', mode === 'contain');
   document.getElementById('toggleCover').classList.toggle('on', mode === 'cover');
+}
+
+function toggleFlutter() {
+  flutterNaming = !flutterNaming;
+  document.getElementById('toggleFlutter').classList.toggle('on', flutterNaming);
 }
 
 // ─────────────────────────────────────────────
@@ -1585,6 +1673,79 @@ function log(msg, type = 'info') {
 }
 
 // ─────────────────────────────────────────────
+// ICO BUILDER
+// ─────────────────────────────────────────────
+
+function buildIco(src) {
+  // Build a multi-resolution ICO containing 16, 32, 48, 64, 128, 256px sizes
+  const sizes = [16, 32, 48, 64, 128, 256];
+  const pngBlobs = [];
+
+  for (const s of sizes) {
+    const canvas = renderContain(src, s, s);
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.getImageData(0, 0, s, s);
+
+    // Encode as BMP-style ICO entry (BITMAPINFOHEADER + pixel data)
+    // For sizes > 48, use PNG embedding instead for better quality
+    if (s > 48) {
+      // We'll collect PNG data in next step
+      pngBlobs.push({ size: s, canvas });
+    } else {
+      pngBlobs.push({ size: s, canvas });
+    }
+  }
+
+  // Use PNG-embedded ICO for all sizes (modern ICO format, widely supported)
+  return new Promise(async (resolve) => {
+    const entries = [];
+    for (const { size, canvas } of pngBlobs) {
+      const blob = await canvasToBlob(canvas);
+      const buf = await blob.arrayBuffer();
+      entries.push({ size, data: new Uint8Array(buf) });
+    }
+
+    // ICO header: 6 bytes
+    // Each directory entry: 16 bytes
+    const headerSize = 6 + entries.length * 16;
+    let dataOffset = headerSize;
+    const totalSize = headerSize + entries.reduce((sum, e) => sum + e.data.length, 0);
+
+    const ico = new ArrayBuffer(totalSize);
+    const view = new DataView(ico);
+
+    // ICONDIR header
+    view.setUint16(0, 0, true);              // reserved
+    view.setUint16(2, 1, true);              // type: 1 = ICO
+    view.setUint16(4, entries.length, true);  // count
+
+    // ICONDIRENTRY for each image
+    for (let i = 0; i < entries.length; i++) {
+      const e = entries[i];
+      const offset = 6 + i * 16;
+      view.setUint8(offset + 0, e.size >= 256 ? 0 : e.size); // width (0 = 256)
+      view.setUint8(offset + 1, e.size >= 256 ? 0 : e.size); // height
+      view.setUint8(offset + 2, 0);   // color palette
+      view.setUint8(offset + 3, 0);   // reserved
+      view.setUint16(offset + 4, 1, true);  // color planes
+      view.setUint16(offset + 6, 32, true); // bits per pixel
+      view.setUint32(offset + 8, e.data.length, true);  // data size
+      view.setUint32(offset + 12, dataOffset, true);     // data offset
+      dataOffset += e.data.length;
+    }
+
+    // Write PNG data
+    let writePos = headerSize;
+    for (const e of entries) {
+      new Uint8Array(ico).set(e.data, writePos);
+      writePos += e.data.length;
+    }
+
+    resolve(ico);
+  });
+}
+
+// ─────────────────────────────────────────────
 // GENERATE
 // ─────────────────────────────────────────────
 
@@ -1617,23 +1778,35 @@ async function generate() {
     if (!spec) continue;
 
     try {
-      let canvas;
-      if (spec.badge) {
-        canvas = renderBadgeLogo(sourceImage, spec.w, spec.h);
-      } else if (fitMode === 'cover') {
-        canvas = renderCover(sourceImage, spec.w, spec.h);
-      } else {
-        canvas = renderContain(sourceImage, spec.w, spec.h);
+      // Determine output filename (Flutter naming if enabled)
+      let outFile = spec.file;
+      if (flutterNaming && FLUTTER_NAMES[spec.file]) {
+        outFile = FLUTTER_NAMES[spec.file];
       }
 
-      const blob = await canvasToBlob(canvas);
-      const arrayBuffer = await blob.arrayBuffer();
-      zip.file(spec.file, arrayBuffer);
+      if (spec.ico) {
+        // Build multi-resolution ICO file
+        const icoBuffer = await buildIco(sourceImage);
+        zip.file(outFile, icoBuffer);
+      } else {
+        let canvas;
+        if (spec.badge) {
+          canvas = renderBadgeLogo(sourceImage, spec.w, spec.h);
+        } else if (fitMode === 'cover') {
+          canvas = renderCover(sourceImage, spec.w, spec.h);
+        } else {
+          canvas = renderContain(sourceImage, spec.w, spec.h);
+        }
 
-      log(`OK  ${spec.file}  (${spec.w}×${spec.h})`, 'ok');
+        const blob = await canvasToBlob(canvas);
+        const arrayBuffer = await blob.arrayBuffer();
+        zip.file(outFile, arrayBuffer);
+      }
+
+      log(`OK  ${outFile}  (${spec.w}×${spec.h})`, 'ok');
       created++;
     } catch (err) {
-      log(`ERR ${spec.file}: ${err.message}`, 'err');
+      log(`ERR ${outFile}: ${err.message}`, 'err');
       errors++;
     }
 
