@@ -1215,7 +1215,7 @@ function rebuildAssetPanel() {
         item.dataset.key = key;
         item.innerHTML = `
           <div class="asset-cb">${selectedAssets.has(key) ? '✓' : ''}</div>
-          <span class="asset-name">${a.file.split('/').pop()}</span>
+          <span class="asset-name">${(flutterNaming && FLUTTER_NAMES[a.file] ? FLUTTER_NAMES[a.file] : a.file).split('/').pop()}</span>
           <span class="asset-size">${a.w}×${a.h}</span>
         `;
         item.addEventListener('click', () => toggleAsset(key, item));
@@ -1277,6 +1277,7 @@ function toggleOption(id, mode) {
 function toggleFlutter() {
   flutterNaming = !flutterNaming;
   document.getElementById('toggleFlutter').classList.toggle('on', flutterNaming);
+  rebuildAssetPanel();
 }
 
 // ─────────────────────────────────────────────
