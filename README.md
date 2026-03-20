@@ -2,7 +2,7 @@
 
 Generate all platform visual assets from a single source image — Windows Store, Android, iOS, Chrome Extension & Favicon.
 
-**[→ Hosted Here](https://eeriegoesd.com/visual-assets-generator-website/)**
+**[Here](https://eeriegoesd.com/visual-assets-generator-website/)**
 
 ---
 
